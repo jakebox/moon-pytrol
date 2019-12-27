@@ -27,11 +27,13 @@ class Rover(pygame.sprite.Sprite):
         self.grav = grav
         self.ground_pos = ground_pos
         self.counter = 0
+        self.status = "alive"
 
     def update(self, speed):
-        self.speed = speed
-        self.rect.x += self.speed
-        self.rect.y += self.change_y
+        if self.status == "alive":
+            self.speed = speed
+            self.rect.x += self.speed
+            self.rect.y += self.change_y
         #self.jiggle()
 
     def calc_grav(self):
@@ -52,13 +54,15 @@ class Rover(pygame.sprite.Sprite):
 
     def updateWheels(self):
         #self.leftwheel = pygame.transform.rotate(self._leftwheel, 10)
-        self._leftwheel, self.rect = rot_center(self.leftwheel, self.rect, angle)
-        self.angle += 5
+        if self.status == "alive":
+            self._leftwheel, self.rect = rot_center(self.leftwheel, self.rect, angle)
+            self.angle += 5
 
     def blitWheels(self, screen):
-        screen.blit(self._leftwheel, [self.rect.x + 3.5, self.rect.y + 30])
-        screen.blit(self.rightwheel, [self.rect.x + 23.4, self.rect.y + 30])
-        screen.blit(self._leftwheel, [self.rect.x + 42, self.rect.y + 30])
+        if self.status == "alive":
+            screen.blit(self._leftwheel, [self.rect.x + 3.5, self.rect.y + 30])
+            screen.blit(self.rightwheel, [self.rect.x + 23.4, self.rect.y + 30])
+            screen.blit(self._leftwheel, [self.rect.x + 42, self.rect.y + 30])
 
     def jiggle(self):
         if self.counter <= 5:
@@ -97,7 +101,7 @@ class SideBullet(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x += 5
-        if self.rect.left >= self.call_pos + 160:
+        if self.rect.left >= self.call_pos + 120:
             self.kill()
 
 # -------- Main Program Loop -----------

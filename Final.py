@@ -92,7 +92,7 @@ while not done:
                 if event.key == pygame.K_q:
                     ufo.dropBomb(all_sprites_list, bomb_list)
                 if event.key == pygame.K_w:
-                    shoot()
+                    if rover.status == "alive": shoot()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     print("press")
 
@@ -107,20 +107,29 @@ while not done:
             rover.rect.x = 70
     elif pygame.K_LEFT not in keys or pygame.K_RIGHT not in keys:
         rover_speed = 0.5
-        if rover.rect.x > rover_starting_x:# and rover.rect.y <= 286:
-            rover.rect.x -= 1.3
-        if rover.rect.x < rover_starting_x and rover.rect.y <= 286:
-            rover.rect.x += 1.3
+        if rover.rect.x > rover_starting_x: rover.rect.x -= 1.3
+        if rover.rect.x < rover_starting_x and rover.rect.y <= 286: rover.rect.x += 1.3
 
     # --- Game logic
     dt = clock.tick()
 
+    ## Player death by UFO
+    player_bombed_hitlist = pygame.sprite.spritecollide(rover, bomb_list, False) # single object on group collision
+    for bomb in player_bombed_hitlist:
+        if rover.rect.y <= GROUND_POS:
+            rover.kill()
+            rover.status = "dead"
+        else:
+            print("hit and a miss")
 
-    #player_dead_hitlist = pygame.sprite.spritecollide(rover, bomb_list, False) # single object on group collision
+    ## Player death by hole
+    player_holed_hitlist = pygame.sprite.spritecollide(rover, hole_list, False)
+    for hole in player_holed_hitlist:
+        rover.kill()
+        rover.status = "dead"
 
-    # for player in player_dead_hitlist:
-    #     print(player)
 
+    ## UFO death by bullet
     for bullet in bullet_sprites_list:
         hit_list = pygame.sprite.spritecollide(bullet, ufo_sprites_list, False) # If bullet collides with UFO, kill UFO
         for i in hit_list:
@@ -129,6 +138,8 @@ while not done:
             ufo.status = "dead"
             ufos_killed += 1
 
+
+    ## Generating holes
     time_since_hole_gen += dt
     if time_since_hole_gen > random.randrange(9, 25):
         genHole(random.randrange(680, 720), 0) # move the snake here
