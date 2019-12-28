@@ -36,16 +36,53 @@ class WorldGen():
         screen.blit(self.ground, [0, self.ground_pos + self.y_shift])
 
 
+#holefiles = ["assets/tinyhole.png", "assets/"]
+
 class GenHole(pygame.sprite.Sprite):
 
     def __init__(self, scroll_speed, y_shift, ground_pos, x, size):
         super().__init__()
-        if size == 0:
+        if size == 0: ## possibly convert these long if blocks to a dictionary containing #/filename pairs? 
             self.image = pygame.image.load("assets/tinyhole.png")
         self.rect = self.image.get_rect()
         self.rect.y = ground_pos + y_shift
         self.rect.x = x
         self.speed = scroll_speed
+
+    def update(self):
+        self.rect.x -= self.speed + 3
+
+        if self.rect.x <= -60:
+            self.kill()
+
+rockfile = ["assets/tinyrock.png", "assets/smallrock.png", "assets/bigrock.png", "assets/hugerock.png"]
+
+class Rock(pygame.sprite.Sprite):
+
+    def __init__(self, scroll_speed, y_shift, ground_pos, x, size):
+        super().__init__()
+        self.image = pygame.image.load(rockfile[size])
+        '''
+        if size == 0:
+            self.image = pygame.image.load("assets/tinyrock.png") ## to-do: make this image
+        elif size == 1:
+            self.image = pygame.image.load("assets/smallrock.png")
+        elif size == 2:
+            self.image = pygame.image.load("assets/bigrock.png")
+        elif size == 3:
+            self.image = pygame.image.load("assets/hugerock.png")
+        '''
+        self.rect = self.image.get_rect()
+        self.rect.bottom = ground_pos + y_shift
+        self.rect.x = x
+        self.speed = scroll_speed
+
+    # def shot(self):
+    #     if size < 3:
+    #         self.kill()
+    #     else:
+    #         self.kill()
+    #         print("huge rock killed, special treatment here") ## add the special treatment
 
     def update(self):
         self.rect.x -= self.speed + 3
@@ -76,6 +113,10 @@ if __name__ == "__main__":
     hole = GenHole(WORLD_SPEED, 30, GROUND_POS, 400, 0)
     hole_list.add(hole)
 
+    rock_list = pygame.sprite.Group()
+    rock = Rock(WORLD_SPEED, 30, GROUND_POS, 400, 0)
+    rock_list.add(rock)
+
     while not done:
         # --- Main event loop (input from user mouse, keyboard, etc)
         for event in pygame.event.get():
@@ -93,6 +134,9 @@ if __name__ == "__main__":
 
         hole_list.draw(screen)
         hole_list.update()
+
+        rock_list.draw(screen)
+        rock_list.update()
 
         pygame.display.flip()  # updates the screen
 

@@ -101,7 +101,7 @@ class SideBullet(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x += 5
-        if self.rect.left >= self.call_pos + 120:
+        if self.rect.left >= self.call_pos + 135:
             self.kill()
 
 # -------- Main Program Loop -----------
