@@ -168,14 +168,14 @@ while not done:
 
     ## Generating holes
     time_since_hole_gen += dt
-    if time_since_hole_gen > random.randrange(10, 37):
-        genHole(random.randrange(700, 720), 0)
+    if time_since_hole_gen > random.randrange(20, 50):
+        genHole(random.randrange(700, 720), random.randrange(0, 3))
         time_since_hole_gen = 0
 
     ## Spawning rocks
     time_since_rock_gen += dt
     if time_since_rock_gen > random.randrange(30, 41):
-        genRock(random.randrange(650, 690), 1)
+        genRock(random.randrange(650, 690), random.randrange(0, 4))
         time_since_rock_gen = 0
 
 

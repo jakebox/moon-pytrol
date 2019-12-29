@@ -36,14 +36,13 @@ class WorldGen():
         screen.blit(self.ground, [0, self.ground_pos + self.y_shift])
 
 
-#holefiles = ["assets/tinyhole.png", "assets/"]
+holefiles = ["assets/smallhole.png", "assets/mediumhole.png", "assets/hugehole.png"]
 
 class GenHole(pygame.sprite.Sprite):
 
     def __init__(self, scroll_speed, y_shift, ground_pos, x, size):
         super().__init__()
-        if size == 0: ## possibly convert these long if blocks to a dictionary containing #/filename pairs? 
-            self.image = pygame.image.load("assets/tinyhole.png")
+        self.image = pygame.image.load(holefiles[size])
         self.rect = self.image.get_rect()
         self.rect.y = ground_pos + y_shift
         self.rect.x = x
@@ -55,13 +54,13 @@ class GenHole(pygame.sprite.Sprite):
         if self.rect.x <= -60:
             self.kill()
 
-rockfile = ["assets/tinyrock.png", "assets/smallrock.png", "assets/bigrock.png", "assets/hugerock.png"]
+rockfiles = ["assets/tinyrock.png", "assets/mediumrock.png", "assets/bigrock.png", "assets/hugerock.png"]
 
 class Rock(pygame.sprite.Sprite):
 
     def __init__(self, scroll_speed, y_shift, ground_pos, x, size):
         super().__init__()
-        self.image = pygame.image.load(rockfile[size])
+        self.image = pygame.image.load(rockfiles[size])
         '''
         if size == 0:
             self.image = pygame.image.load("assets/tinyrock.png") ## to-do: make this image

@@ -42,12 +42,7 @@ while not done:
 
     pygame.draw.rect(screen, RED, [0, 0, 100, 50])
 
-    dt = clock.tick() 
-
-    print(time_elapsed_since_last_action)
-
-    time_elapsed_since_last_action += dt
-
+    dt = clock.tick()
 
     pygame.display.flip()  # updates the screen
 
