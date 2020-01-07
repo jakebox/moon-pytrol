@@ -51,9 +51,15 @@ def rot_center(image, old_rect, angle):
     return rotated_image, new_rect
 
 all_sprites = pygame.sprite.Group()
-
+timer = 0
 # If you want a truly rotating object, you need to move it up and to the left, then rotate it, then move it back.
 # for this I use the function rot_image() above
+apple = Apple()
+apple.rect.x = SCREEN_WIDTH / 2
+apple.rect.y = SCREEN_HEIGHT / 2
+
+all_sprites.add(apple)
+
 for angle in range(0, 360, 10):
     apple = Apple()
     apple.rect.x = angle * 3  # draw bunch across screen
@@ -61,6 +67,9 @@ for angle in range(0, 360, 10):
     apple.image, apple.rect = rot_center(apple.image, apple.rect, angle)
     all_sprites.add(apple)
 
+
+time_since_rot = 0
+angle = 0
 # -------- Main Program Loop -----------
 while not done:
     # --- Main event loop (input from user keyboard, mouse, game controller)
@@ -70,15 +79,35 @@ while not done:
 
     # --- Game logic should go here
 
+    dt = clock.tick(60)
+
     # --- Draw to screen
     screen.fill(GRAY)
 
+    time_since_rot += dt
 
+    '''
+    if time_since_rot >= 50:
+        if angle == 360:
+            angle = 0
+        else:
+            angle += 10
+            apple.image, apple.rect = rot_center(apple.image, apple.rect, angle)
+            time_since_rot = 0
+    if pygame.time.get_ticks() - timer > 500:
+        timer = pygame.time.get_ticks()
+        if angle == 360:
+            angle = 0
+        else:
+            angle += 10
+            apple.image, apple.rect = rot_center(apple.image, apple.rect, angle)
+        print("hi")
+    '''
 
     all_sprites.draw(screen)
 
     pygame.display.flip()  # Go ahead and update the screen with what we've drawn.
 
-    clock.tick(60)  # limit to 60 frames per second
+    #clock.tick(60)  # limit to 60 frames per second
 
 pygame.quit()  # Close the window and quit.

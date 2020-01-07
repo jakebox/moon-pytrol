@@ -168,7 +168,7 @@ while not done:
 
     ## Generating holes
     time_since_hole_gen += dt
-    if time_since_hole_gen > random.randrange(20, 50):
+    if time_since_hole_gen > random.randrange(50, 100):
         genHole(random.randrange(700, 720), random.randrange(0, 3))
         time_since_hole_gen = 0
 
