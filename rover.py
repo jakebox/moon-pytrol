@@ -1,5 +1,5 @@
 '''
-Rover class for Moon Patrol
+Rover class for Moon-Pytrol
 '''
 
 import pygame

@@ -1,5 +1,5 @@
 '''
-World Generation class for Moon Patrol
+World Generation class for Moon-Pytrol
 '''
 
 import pygame

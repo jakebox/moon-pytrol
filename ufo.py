@@ -1,5 +1,5 @@
 '''
-Rover class for Moon Patrol
+UFO class for Moon-Pytrol
 '''
 
 import pygame
@@ -9,22 +9,27 @@ class UFO(pygame.sprite.Sprite):
 
     def __init__(self, speed, ground_pos, all_sprites_list, bomb_list):
         super().__init__()
-        self.image = pygame.image.load("assets/alien2big.png")
+        self.image = pygame.image.load("assets/alien2.png")
         self.rect = self.image.get_rect()
-        self.speed = speed
         self.ground_pos = ground_pos
-        self.movementSpeed = random.random() * 1.8 + 1
+        self.movementSpeed = speed
         self.status = "alive"
+        self.screened_yet = 0
+        self.last_dropped_bomb = 0
 
-    def update(self):
-        if self.rect.x >= 500:
-            self.movementSpeed = -self.movementSpeed
-            self.rect.y += random.randrange(15, 23)
-        elif self.rect.x <= 30:
-            self.movementSpeed = -self.movementSpeed
-            self.rect.y += random.randrange(15, 23)
+    def update(self, dt):
+        if self.screened_yet == 0:
+            if self.rect.x >= 50:
+                self.screened_yet = 1
+        if self.screened_yet == 1:
+            if self.rect.x >= 500:
+                self.movementSpeed = -self.movementSpeed
+                self.rect.y += random.randrange(15, 23)
+            elif self.rect.x <= 30: #and self.screened_yet == 1:
+                self.movementSpeed = -self.movementSpeed
+                self.rect.y += random.randrange(15, 23)
         self.rect.x += self.movementSpeed
-        #print(self.rect.x, self.rect.y)
+        self.last_dropped_bomb += dt
 
     def dropBomb(self, all_list, bomb_list):
         if self.status == "alive":
@@ -42,7 +47,6 @@ class Bomb(pygame.sprite.Sprite):
         self.bomb_speed = bomb_speed 
         self.rect.x = x
         self.rect.y = y
-        print(self.rect.x)
 
     def update(self):
         self.rect.y += self.bomb_speed

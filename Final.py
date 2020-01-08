@@ -12,7 +12,7 @@ pygame.init()  # vroom vroom pyamegame
 GROUND_POS = 285 # (to be passed into sprites)
 
 rover_speed = 0.5
-rover_starting_x = 120
+rover_starting_x = 130
 
 ROVER_GRAVITY = 0.16
 
@@ -46,6 +46,13 @@ def genRock(x, rocktype):
     rock = Rock(WORLD_SPEED, 1, GROUND_POS, x, rocktype)
     rock_list.add(rock)
 
+def genUFO(speed, x):
+    ufo = UFO(speed, GROUND_POS, all_sprites_list, bomb_list)
+    ufo.rect.x = x
+    ufo.rect.y = random.randrange(30, 59)
+    all_sprites_list.add(ufo)
+    ufo_sprites_list.add(ufo)
+
 #################
 ## SETUP STUFF
 BLACK = (0, 0, 0)
@@ -59,6 +66,7 @@ clock = pygame.time.Clock()
 ## END SETUP STUFF
 #################
 
+## Sprite containers
 all_sprites_list = pygame.sprite.Group()
 hole_list = pygame.sprite.Group()
 rock_list = pygame.sprite.Group()
@@ -67,24 +75,28 @@ bomb_list = pygame.sprite.Group()
 bullet_sprites_list = pygame.sprite.Group()
 side_bullet_sprites_list = pygame.sprite.Group()
 
+## Making rover
 rover = Rover(ROVER_GRAVITY, GROUND_POS)
 rover.rect.x = rover_starting_x
 rover.rect.y = 50
-
 all_sprites_list.add(rover)
 
-ufo = UFO(UFO_SPEED, GROUND_POS, all_sprites_list, bomb_list)
+'''
 ufo.rect.x = 70
 ufo.rect.y = 59
 
 ufo_sprites_list.add(ufo)
 all_sprites_list.add(ufo)
+'''
 
 world = WorldGen(WORLD_SPEED, 30, GROUND_POS - 30)
 
+## Misc tracking variables
 ufos_killed = 0
+level = 2
 time_since_hole_gen = 0
 time_since_rock_gen = 0
+time_since_ufo_gen = 0
 
 # -------- Main Program Loop -----------
 while not done:
@@ -95,8 +107,7 @@ while not done:
         elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     rover.jump()
-                if event.key == pygame.K_q:
-                    ufo.dropBomb(all_sprites_list, bomb_list)
+                    #ufo.dropBomb(all_sprites_list, bomb_list)
                 if event.key == pygame.K_w:
                     if rover.status == "alive": shoot()
                 if event.key == pygame.K_e:
@@ -126,11 +137,9 @@ while not done:
     ## Player death by UFO
     player_bombed_hitlist = pygame.sprite.spritecollide(rover, bomb_list, False) # single object on group collision
     for bomb in player_bombed_hitlist:
-        if rover.rect.y == GROUND_POS:
+        if rover.rect.bottom + 7 >= GROUND_POS:
             rover.kill()
             rover.status = "dead"
-        else:
-            print("hit and a miss")
 
     ## Player death by hole
     player_holed_hitlist = pygame.sprite.spritecollide(rover, hole_list, False)
@@ -144,14 +153,13 @@ while not done:
         rover.kill()
         rover.status = "dead"
     
-
     ## UFO death by bullet
     for bullet in bullet_sprites_list:
         bullet_hit_list = pygame.sprite.spritecollide(bullet, ufo_sprites_list, False)
         for ufo_killed in bullet_hit_list:
             bullet.kill() # Remove bullet
             ufo_killed.kill() # Kill UFO
-            ufo.status = "dead"
+            #ufo.status = "dead"
             ufos_killed += 1
 
     ## Rock death by bullet
@@ -164,8 +172,31 @@ while not done:
 
     # --- World Generation Logic
 
-    # (all of this is temporary until some sort of level system is put into place)
+    if level == 1:
+        time_since_hole_gen += dt
+        if time_since_hole_gen > random.randrange(60, 80):
+            genHole(random.randrange(700, 730), 1) # Gen small hole
+            time_since_hole_gen = 0
 
+    elif level == 2:
+        time_since_hole_gen += dt
+        if time_since_hole_gen > random.randrange(60, 80):
+            genHole(random.randrange(700, 730), 1) # Gen small hole
+            time_since_hole_gen = 0
+
+        time_since_ufo_gen += dt
+        if time_since_ufo_gen > random.randrange(70, 120) and len(ufo_sprites_list) == 0:
+            ufo_gen_spot = random.randrange(-60, -20)
+            genUFO(random.random() * 1.8 + 1.3, ufo_gen_spot)
+            genUFO(random.random() * 1.8 + 1, ufo_gen_spot - random.randrange(60, 90))
+            time_since_ufo_gen = 0
+
+        for ufo in ufo_sprites_list:
+            if ufo.last_dropped_bomb > random.randrange(50, 60):
+                ufo.dropBomb(all_sprites_list, bomb_list)
+                ufo.last_dropped_bomb = 0
+
+    '''
     ## Generating holes
     time_since_hole_gen += dt
     if time_since_hole_gen > random.randrange(50, 100):
@@ -177,7 +208,7 @@ while not done:
     if time_since_rock_gen > random.randrange(30, 41):
         genRock(random.randrange(650, 690), random.randrange(0, 4))
         time_since_rock_gen = 0
-
+    '''
 
 #    if pygame.time.get_ticks() % 1000 <= 500:
 #        print("holes:", len(hole_list))
@@ -212,7 +243,7 @@ while not done:
     bullet_sprites_list.update()
 
     # --- UFO Control
-    ufo.update()
+    ufo_sprites_list.update(dt)
     bomb_list.update()
 
     pygame.display.update()
