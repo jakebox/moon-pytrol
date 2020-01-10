@@ -53,6 +53,12 @@ def genUFO(speed, x):
     all_sprites_list.add(ufo)
     ufo_sprites_list.add(ufo)
 
+def oneInThree():
+    if random.randrange(0, 3) == 1:
+        return(1)
+    else:
+        return(0)
+
 #################
 ## SETUP STUFF
 BLACK = (0, 0, 0)
@@ -175,13 +181,13 @@ while not done:
     if level == 1:
         time_since_hole_gen += dt
         if time_since_hole_gen > random.randrange(60, 80):
-            genHole(random.randrange(700, 730), 1) # Gen small hole
+            genHole(random.randrange(700, 730), 0) # Gen small hole
             time_since_hole_gen = 0
 
     elif level == 2:
         time_since_hole_gen += dt
-        if time_since_hole_gen > random.randrange(60, 80):
-            genHole(random.randrange(700, 730), 1) # Gen small hole
+        if time_since_hole_gen > random.randrange(40, 60):
+            genHole(random.randrange(700, 730), 0) # Gen small hole
             time_since_hole_gen = 0
 
         time_since_ufo_gen += dt
@@ -192,23 +198,83 @@ while not done:
             time_since_ufo_gen = 0
 
         for ufo in ufo_sprites_list:
-            if ufo.last_dropped_bomb > random.randrange(50, 60):
+            if ufo.last_dropped_bomb > random.randrange(20, 30):
                 ufo.dropBomb(all_sprites_list, bomb_list)
                 ufo.last_dropped_bomb = 0
 
-    '''
-    ## Generating holes
-    time_since_hole_gen += dt
-    if time_since_hole_gen > random.randrange(50, 100):
-        genHole(random.randrange(700, 720), random.randrange(0, 3))
-        time_since_hole_gen = 0
+    elif level == 3:
+        time_since_hole_gen += dt
+        if time_since_hole_gen > random.randrange(35, 55):
+            if oneInThree() == 1:
+                genHole(random.randrange(700, 730), 1) # 1/3 chance of gen medium hole
+            else:
+                genHole(random.randrange(700, 730), 0)
+            time_since_hole_gen = 0
 
-    ## Spawning rocks
-    time_since_rock_gen += dt
-    if time_since_rock_gen > random.randrange(30, 41):
-        genRock(random.randrange(650, 690), random.randrange(0, 4))
-        time_since_rock_gen = 0
-    '''
+        time_since_ufo_gen += dt
+        if time_since_ufo_gen > random.randrange(65, 100) and len(ufo_sprites_list) == 0:
+            ufo_gen_spot = random.randrange(-60, -20)
+            genUFO(random.random() * 1.8 + 1.5, ufo_gen_spot)
+            genUFO(random.random() * 1.8 + 1.2, ufo_gen_spot - random.randrange(60, 90))
+            time_since_ufo_gen = 0
+
+        for ufo in ufo_sprites_list:
+            if ufo.last_dropped_bomb > random.randrange(10, 20):
+                ufo.dropBomb(all_sprites_list, bomb_list)
+                ufo.last_dropped_bomb = 0
+
+    elif level == 4:
+        time_since_hole_gen += dt
+        if time_since_hole_gen > random.randrange(30, 50):
+            if oneInThree() == 1:
+                genHole(random.randrange(700, 730), 1) # 1/3 chance of gen medium hole
+            else:
+                genHole(random.randrange(700, 730), 0)
+            time_since_hole_gen = 0
+
+        time_since_ufo_gen += dt
+        if time_since_ufo_gen > random.randrange(70, 110) and len(ufo_sprites_list) == 0:
+            ufo_gen_spot = random.randrange(-60, -20)
+            genUFO(random.random() * 1.8 + 1.5, ufo_gen_spot)
+            genUFO(random.random() * 1.8 + 1.2, ufo_gen_spot - random.randrange(60, 90))
+            time_since_ufo_gen = 0
+
+        for ufo in ufo_sprites_list:
+            if ufo.last_dropped_bomb > random.randrange(15, 30):
+                ufo.dropBomb(all_sprites_list, bomb_list)
+                ufo.last_dropped_bomb = 0
+
+        time_since_rock_gen += dt
+        if time_since_rock_gen > random.randrange(30, 35):
+            genRock(random.randrange(650, 690), 3)
+            time_since_rock_gen = 0
+
+    elif level == 5:
+        time_since_hole_gen += dt
+        if time_since_hole_gen > random.randrange(25, 50):
+            if oneInThree() == 1:
+                genHole(random.randrange(700, 730), 1) # 1/3 chance of gen medium hole
+            else:
+                genHole(random.randrange(700, 730), 0)
+            time_since_hole_gen = 0
+
+        time_since_ufo_gen += dt
+        if time_since_ufo_gen > random.randrange(50, 120) and len(ufo_sprites_list) == 0:
+            ufo_gen_spot = random.randrange(-100, -20)
+            genUFO(random.random() * 1.8 + 1.5, ufo_gen_spot)
+            genUFO(random.random() * 1.8 + 1.2, ufo_gen_spot - random.randrange(70, 130))
+            genUFO(random.random() * 1.8 + 1, ufo_gen_spot - random.randrange(160, 180))
+            time_since_ufo_gen = 0
+
+        for ufo in ufo_sprites_list:
+            if ufo.last_dropped_bomb > random.randrange(20, 35):
+                ufo.dropBomb(all_sprites_list, bomb_list)
+                ufo.last_dropped_bomb = 0
+
+        time_since_rock_gen += dt
+        if time_since_rock_gen > random.randrange(20, 30):
+            genRock(random.randrange(650, 690), 0)
+            time_since_rock_gen = 0
 
 #    if pygame.time.get_ticks() % 1000 <= 500:
 #        print("holes:", len(hole_list))

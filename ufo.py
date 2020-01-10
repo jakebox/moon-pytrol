@@ -18,15 +18,15 @@ class UFO(pygame.sprite.Sprite):
         self.last_dropped_bomb = 0
 
     def update(self, dt):
-        if self.screened_yet == 0:
+        if self.screened_yet == 0: # Making sure UFO doesn't go off screen
             if self.rect.x >= 50:
                 self.screened_yet = 1
         if self.screened_yet == 1:
             if self.rect.x >= 500:
-                self.movementSpeed = -self.movementSpeed
+                self.movementSpeed = -self.movementSpeed #* random.random()
                 self.rect.y += random.randrange(15, 23)
             elif self.rect.x <= 30: #and self.screened_yet == 1:
-                self.movementSpeed = -self.movementSpeed
+                self.movementSpeed = -self.movementSpeed# * random.random()
                 self.rect.y += random.randrange(15, 23)
         self.rect.x += self.movementSpeed
         self.last_dropped_bomb += dt
