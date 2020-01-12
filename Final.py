@@ -1,4 +1,5 @@
 import pygame
+from pygame.locals import *
 import random
 import time
 from rover import Rover, UpBullet, SideBullet, Explosion
@@ -34,6 +35,13 @@ def intro_screen():
             if event.type == pygame.KEYDOWN:
                 done = True
         screen.fill(BLACK)
+        screen.blit(pygame.image.load("assets/title.jpg"), [190, 30])
+        start_inst = font.render("Any key to begin", True, WHITE)
+        inst = font.render("Arrow keys to move,", True, WHITE)
+        inst2 = font.render("spacebar to shoot", True, WHITE)
+        screen.blit(start_inst, [160, 210])
+        screen.blit(inst, [140, 260])
+        screen.blit(inst2, [155, 285])
 
         pygame.display.flip()
         clock.tick(60)
@@ -96,15 +104,18 @@ def oneInThree():
 ## SETUP STUFF
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 340
 size = (SCREEN_WIDTH, SCREEN_HEIGHT)
-screen = pygame.display.set_mode(size)
+flags = DOUBLEBUF
+screen = pygame.display.set_mode(size, flags)
+screen.set_alpha(None)
 pygame.display.set_caption("Moon Pytrol")
 done = False
 clock = pygame.time.Clock()
 
-bg_music = pygame.mixer.Sound("assets/sounds/theme_bigger.wav")
+bg_music = pygame.mixer.Sound("assets/sounds/theme.wav")
 start_music = pygame.mixer.Sound("assets/sounds/start-course.wav")
 crash_sfx = pygame.mixer.Sound("assets/sounds/crash.wav")
 game_over_music = pygame.mixer.Sound("assets/sounds/game_over.wav")
@@ -133,25 +144,20 @@ rover.rect.x = rover_starting_x
 rover.rect.y = 50
 all_sprites_list.add(rover)
 
-'''
-ufo.rect.x = 70
-ufo.rect.y = 59
-
-ufo_sprites_list.add(ufo)
-all_sprites_list.add(ufo)
-'''
-
 world = WorldGen(WORLD_SPEED, 30, GROUND_POS - 30)
 
 ## Misc tracking variables
 ufos_killed = 0
-level = 4
+level = 0
 time_since_hole_gen = 0
 time_since_rock_gen = 0
 time_since_ufo_gen = 0
+time_since_level_change = 0
+ufos_killed_previous = 0
 
 in_outro = False
 dead_sequence_played_yet = False
+intro_music_played = False
 intro_screen()
 
 
@@ -164,14 +170,10 @@ while not done:
         elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     rover.jump()
-                if event.key == pygame.K_w:
-                    if rover.status == "alive":
+                if event.key == pygame.K_SPACE:
+                    if rover.status == "alive" and level != 0:
                         shoot()
                         shoot_sfx.play(0)
-                if event.key == pygame.K_e:
-                    genRock(500, 2)
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            print("press")
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_RIGHT] and rover.rect.x <= 230:
@@ -190,7 +192,7 @@ while not done:
     # --- GAME LOGIC --- #
     dt = clock.tick()
 
-    # --- Collision Detection
+    # --- Collision Detections
 
     ## Player death by UFO
     player_bombed_hitlist = pygame.sprite.spritecollide(rover, bomb_list, False) # single object on group collision
@@ -245,7 +247,20 @@ while not done:
         rock_dont_touch_hole = pygame.sprite.spritecollide(rock, hole_list, True)
 
 
-    # --- World Generation Logic
+    # --- Level System / World Generation Logic
+    time_since_level_change += dt
+    if level <= 4:
+        if time_since_level_change > 210: #and ufos_killed - ufos_killed_previous >= random.randrange(2, 4):
+            level += 1
+            time_since_level_change = 0
+    elif level == 5:
+        if time_since_level_change > 270:
+            level += 1
+            time_since_level_change = 0
+    elif level == 6:
+        if time_since_level_change > 310:
+            level += 1
+            time_since_hole_gen = 0
 
     if level == 1:
         time_since_hole_gen += dt
@@ -345,16 +360,79 @@ while not done:
             genRock(random.randrange(650, 690), random.randrange(0, 2))
             time_since_rock_gen = 0
 
-#    if pygame.time.get_ticks() % 1000 <= 500:
+    elif level == 6:
+        time_since_hole_gen += dt
+        if time_since_hole_gen > random.randrange(47, 70):
+            genHole(random.randrange(700, 730), random.randrange(0, 3))
+            time_since_hole_gen = 0
+
+        time_since_ufo_gen += dt
+        if time_since_ufo_gen > random.randrange(50, 120) and len(ufo_sprites_list) == 0:
+            ufo_gen_spot = random.randrange(-100, -20)
+            genUFO(random.random() * 1.8 + 1.5, ufo_gen_spot)
+            genUFO(random.random() * 1.8 + 1.2, ufo_gen_spot - random.randrange(70, 130))
+            genUFO(random.random() * 1.8 + 1, ufo_gen_spot - random.randrange(160, 180))
+            time_since_ufo_gen = 0
+
+        for ufo in ufo_sprites_list:
+            if ufo.last_dropped_bomb > random.randrange(25, 40):
+                ufo.dropBomb(all_sprites_list, bomb_list)
+                ufo.last_dropped_bomb = 0
+
+        time_since_rock_gen += dt
+        if time_since_rock_gen > random.randrange(34, 42):
+            genRock(random.randrange(650, 690), random.randrange(1, 4))
+            time_since_rock_gen = 0
+
+    elif level == 7:
+        time_since_hole_gen += dt
+        if time_since_hole_gen > random.randrange(40, 70):
+            genHole(random.randrange(700, 730), random.randrange(0, 3))
+            time_since_hole_gen = 0
+
+        time_since_ufo_gen += dt
+        if time_since_ufo_gen > random.randrange(50, 120) and len(ufo_sprites_list) == 0:
+            ufo_gen_spot = random.randrange(-100, -20)
+            genUFO(random.random() * 1.8 + 1.5, ufo_gen_spot)
+            genUFO(random.random() * 1.8 + 1.2, ufo_gen_spot - random.randrange(70, 130))
+            genUFO(random.random() * 1.8 + 1, ufo_gen_spot - random.randrange(160, 180))
+            if oneInThree() == 1:
+                genUFO(random.random() * 1.8 + 1.8, ufo_gen_spot - random.randrange(190, 200))
+            time_since_ufo_gen = 0
+
+        for ufo in ufo_sprites_list:
+            if ufo.last_dropped_bomb > random.randrange(25, 40):
+                ufo.dropBomb(all_sprites_list, bomb_list)
+                ufo.last_dropped_bomb = 0
+
+        time_since_rock_gen += dt
+        if time_since_rock_gen > random.randrange(24, 37):
+            genRock(random.randrange(650, 690), random.randrange(1, 4))
+            time_since_rock_gen = 0
+
+
+
+#    if pygame.time.get_ticks() % 1000 <= 500: # Doing something on a timer
 #        print("holes:", len(hole_list))
 
-
     # --- GAME FLOW LOGIC --- #
-    if rover.status != "dead":
+    if rover.status != "dead" and level == 0:
+        start_music.set_volume(0.8)
+        pygame.mixer.Channel(7).play(start_music)
+    while pygame.mixer.Channel(7).get_busy() == True and intro_music_played == False:
+        pass
+
+    intro_music_played = True
+
+    if pygame.mixer.Channel(7).get_busy() == False and level == 0:
+        level = 1
+    elif rover.status != "dead" and level > 0:
         bg_music.set_volume(0.8)
-        bg_music.play(-1)
+        bg_music.play(0)
     elif rover.status == "dead" and dead_sequence_played_yet == False:
         bg_music.stop()
+        for bullet in bullet_sprites_list:
+            bullet.kill()
         crash_sfx.set_volume(0.6)
         crash_sfx.play(0)
         explosion = Explosion(rover.rect.x, rover.rect.y)
@@ -376,7 +454,7 @@ while not done:
         game_over_music.set_volume(0.4)
         game_over_music.play(0)
         dead_sequence_played_yet = True
-        print("rover killed, game over")
+
 
     # --- DRAWING CODE --- #
     screen.fill(BLACK)
@@ -395,11 +473,10 @@ while not done:
     # --- Drawing all sprites (few exceptions)
     all_sprites_list.draw(screen)
 
-    score_txt = font.render("Score: " + str(ufos_killed), True, BLACK)
-    screen.blit(score_txt, [50, SCREEN_HEIGHT - 40])
+    score_txt = font.render("Score: " + str(ufos_killed) + "   Level: " + str(level), True, BLACK)
+    screen.blit(score_txt, [20, SCREEN_HEIGHT - 35])
 
     if rover.status == "dead" and pygame.mixer.get_busy() == False:
-        print("Rover dead, music done")
         outro_screen()
 
     # --- Rover Control

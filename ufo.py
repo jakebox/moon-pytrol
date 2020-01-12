@@ -34,7 +34,7 @@ class UFO(pygame.sprite.Sprite):
 
     def dropBomb(self, all_list, bomb_list):
         if self.status == "alive":
-            bomb = Bomb(self.rect.x + 10, self.rect.y, self.ground_pos, 3.5)
+            bomb = Bomb(self.rect.x + 10, self.rect.y, self.ground_pos, (random.random() + 2.5))
             all_list.add(bomb)
             bomb_list.add(bomb)
 
@@ -49,6 +49,7 @@ class Bomb(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load("assets/ufobomb_smaller.png")
         self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
         self.ground_pos = ground_pos
         self.bomb_speed = bomb_speed 
         self.rect.x = x
@@ -93,13 +94,14 @@ if __name__ == "__main__":
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 ufo.dropBomb(all_sprites_list, bomb_list)
 
+        dt = clock.tick()
         # Clear the screen
         screen.fill(WHITE)
 
         # Draw stuff
         all_sprites_list.draw(screen)
 
-        ufo.update()
+        ufo.update(dt)
 
         bomb_list.update()
 

@@ -19,6 +19,7 @@ class Rover(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load("assets/rover.png")
         self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
         self.leftwheel = pygame.image.load("assets/leftwheel.png")
         self.rightwheel = pygame.image.load("assets/rightwheel.png")
         self.angle = 20
@@ -101,12 +102,12 @@ class SideBullet(pygame.sprite.Sprite):
         self.rect.x = rover.rect.centerx + 7
         self.rect.y = rover.rect.centery - 4
         self.sfx = pygame.mixer.Sound("assets/sounds/shoot.wav")
-        self.sfx.set_volume(0.7)
+        self.sfx.set_volume(0.2)
         pygame.mixer.Channel(2).play(self.sfx)
 
     def update(self):
         self.rect.x += 5
-        if self.rect.left >= self.call_pos + 135:
+        if self.rect.left >= self.call_pos + 145:
             self.kill()
 
 class Explosion(pygame.sprite.Sprite):

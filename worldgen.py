@@ -44,6 +44,7 @@ class GenHole(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load(holefiles[size])
         self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect.y = ground_pos + y_shift
         self.rect.x = x
         self.speed = scroll_speed
