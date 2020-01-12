@@ -28,6 +28,7 @@ class Rover(pygame.sprite.Sprite):
         self.ground_pos = ground_pos
         self.counter = 0
         self.status = "alive"
+        self.jump_sfx = pygame.mixer.Sound("assets/sounds/jump.wav")
 
     def update(self, speed):
         if self.status == "alive":
@@ -51,6 +52,7 @@ class Rover(pygame.sprite.Sprite):
         # If rover is on the ground, move up
         if self.rect.bottom == self.ground_pos - 7:
             self.change_y = -4
+            pygame.mixer.Channel(1).play(self.jump_sfx)
 
     def updateWheels(self):
         #self.leftwheel = pygame.transform.rotate(self._leftwheel, 10)
@@ -98,11 +100,43 @@ class SideBullet(pygame.sprite.Sprite):
         self.call_pos = rover.rect.centerx
         self.rect.x = rover.rect.centerx + 7
         self.rect.y = rover.rect.centery - 4
+        self.sfx = pygame.mixer.Sound("assets/sounds/shoot.wav")
+        self.sfx.set_volume(0.7)
+        pygame.mixer.Channel(2).play(self.sfx)
 
     def update(self):
         self.rect.x += 5
         if self.rect.left >= self.call_pos + 135:
             self.kill()
+
+class Explosion(pygame.sprite.Sprite):
+
+    def __init__(self, x, y):
+        super().__init__()
+        self.explosion_image_list = ["assets/explosion5.png", 
+                        "assets/explosion4.png", 
+                        "assets/explosion3.png", 
+                        "assets/explosion2.png", 
+                        "assets/explosion1.png"]
+        self.explosion_image_index = 0
+        self.image = pygame.image.load(self.explosion_image_list[0])
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.frame = 0 # Keep track of time
+        self.last_update = pygame.time.get_ticks()
+        self.speed = 60 # How fast images should cycle
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > self.speed:
+            self.last_update = now
+            self.frame += 1
+        if self.frame == len(self.explosion_image_list):
+            self.kill() # If explosion is over, kill
+        else:
+            self.image = pygame.image.load(self.explosion_image_list[self.frame]) # Cycle image
+            self.rect = self.image.get_rect(center=self.rect.center) # Keeps explosion centered
 
 # -------- Main Program Loop -----------
 
@@ -120,7 +154,6 @@ if __name__ == "__main__":
     all_sprites_list = pygame.sprite.Group()
     bullet_sprites_list = pygame.sprite.Group()
 
-
     rover = Rover(rover_gravity, ground_pos)
     rover.rect.x = 320
     rover.rect.y = 200
@@ -133,6 +166,9 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode([screen_width, screen_height])
     done = False
     clock = pygame.time.Clock()
+
+    bg_music = pygame.mixer.Sound("assets/sounds/theme_bigger.wav")
+
 
     while not done:
         for event in pygame.event.get():
@@ -148,6 +184,8 @@ if __name__ == "__main__":
 
         # Clear the screen
         screen.fill(BLACK)
+        bg_music.set_volume(0.2)
+        bg_music.play(-1)
 
         # Draw stuff
         all_sprites_list.draw(screen)

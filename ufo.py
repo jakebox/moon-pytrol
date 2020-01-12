@@ -16,6 +16,7 @@ class UFO(pygame.sprite.Sprite):
         self.status = "alive"
         self.screened_yet = 0
         self.last_dropped_bomb = 0
+        self.death_sound = pygame.mixer.Sound("assets/sounds/ufo_kill.wav")
 
     def update(self, dt):
         if self.screened_yet == 0: # Making sure UFO doesn't go off screen
@@ -36,6 +37,11 @@ class UFO(pygame.sprite.Sprite):
             bomb = Bomb(self.rect.x + 10, self.rect.y, self.ground_pos, 3.5)
             all_list.add(bomb)
             bomb_list.add(bomb)
+
+    def death(self):
+        pygame.mixer.Channel(3).play(self.death_sound)
+        self.kill()
+
 
 class Bomb(pygame.sprite.Sprite):
 

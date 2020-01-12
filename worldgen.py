@@ -61,27 +61,11 @@ class Rock(pygame.sprite.Sprite):
     def __init__(self, scroll_speed, y_shift, ground_pos, x, size):
         super().__init__()
         self.image = pygame.image.load(rockfiles[size])
-        '''
-        if size == 0:
-            self.image = pygame.image.load("assets/tinyrock.png") ## to-do: make this image
-        elif size == 1:
-            self.image = pygame.image.load("assets/smallrock.png")
-        elif size == 2:
-            self.image = pygame.image.load("assets/bigrock.png")
-        elif size == 3:
-            self.image = pygame.image.load("assets/hugerock.png")
-        '''
         self.rect = self.image.get_rect()
         self.rect.bottom = ground_pos + y_shift
         self.rect.x = x
         self.speed = scroll_speed
-
-    # def shot(self):
-    #     if size < 3:
-    #         self.kill()
-    #     else:
-    #         self.kill()
-    #         print("huge rock killed, special treatment here") ## add the special treatment
+        self.death_sound = pygame.mixer.Sound("assets/sounds/rock_kill.wav")
 
     def update(self):
         self.rect.x -= self.speed + 3
@@ -89,6 +73,10 @@ class Rock(pygame.sprite.Sprite):
         if self.rect.x <= -60:
             self.kill()
 
+    def death(self):
+        pygame.mixer.Channel(4).set_volume(1)
+        pygame.mixer.Channel(4).play(self.death_sound)
+        self.kill()
 
 # -------- Main Program Loop -----------
 if __name__ == "__main__":
