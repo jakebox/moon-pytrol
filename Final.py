@@ -1,5 +1,5 @@
 import pygame
-from pygame.locals import *
+#from pygame.locals import *
 import random
 import time
 from rover import Rover, UpBullet, SideBullet, Explosion
@@ -57,10 +57,37 @@ def outro_screen():
                     done = True
                     pygame.quit()
                 if event.key == pygame.K_SPACE:
-                    intro_screen() # restart game i guess here
+                    all_sprites_list.empty()
+                    hole_list.empty()
+                    rock_list.empty()
+                    ufo_sprites_list.empty()
+                    bomb_list.empty()
+                    bullet_sprites_list.empty()
+                    side_bullet_sprites_list.empty()
+                    ufos_killed = 0
+                    explo_list.empty()
+                    level = 0
+                    time_since_hole_gen = 0
+                    time_since_rock_gen = 0
+                    time_since_ufo_gen = 0
+                    time_since_level_change = 0
+                    ufos_killed_previous = 0
+                    in_outro = False
+                    dead_sequence_played_yet = False
+                    intro_music_played = False
+                    world.kill()
+                    rover.kill()
+
+                    rover = Rover(ROVER_GRAVITY, GROUND_POS)
+                    rover.rect.x = rover_starting_x
+                    rover.rect.y = 50
+                    all_sprites_list.add(rover)
+
+                    world = WorldGen(WORLD_SPEED, 30, GROUND_POS - 30)
+
+
 
         screen.fill(BLUE)
-
         pygame.display.flip()
         clock.tick(60)
 
@@ -108,9 +135,9 @@ WHITE = (255, 255, 255)
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 340
 size = (SCREEN_WIDTH, SCREEN_HEIGHT)
-flags = DOUBLEBUF
-screen = pygame.display.set_mode(size, flags)
-screen.set_alpha(None)
+#flags = DOUBLEBUF
+screen = pygame.display.set_mode(size)#, flags)
+#screen.set_alpha(None)
 pygame.display.set_caption("Moon Pytrol")
 done = False
 clock = pygame.time.Clock()
@@ -420,7 +447,7 @@ while not done:
         start_music.set_volume(0.8)
         pygame.mixer.Channel(7).play(start_music)
     while pygame.mixer.Channel(7).get_busy() == True and intro_music_played == False:
-        pass
+       pass
 
     intro_music_played = True
 
